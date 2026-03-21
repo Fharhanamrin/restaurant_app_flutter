@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/models/app_color.dart';
 import '../core/models/app_font.dart';
@@ -8,6 +9,9 @@ export '../core/models/app_color.dart';
 export '../core/models/app_font.dart';
 
 class ThemeProvider extends ChangeNotifier {
+  final SharedPreferences _prefs;
+  static const String _themeKey = 'is_dark_mode';
+
   static const List<AppColor> availableColors = [
     AppColor('Ungu', Color(0xFF6750A4)),
     AppColor('Biru', Color(0xFF1565C0)),
@@ -32,19 +36,27 @@ class ThemeProvider extends ChangeNotifier {
     AppFont('Josefin Sans', GoogleFonts.josefinSansTextTheme),
   ];
 
-  ThemeMode _themeMode = ThemeMode.system;
+  late ThemeMode _themeMode;
   Color _seedColor = availableColors.first.color;
   AppFont _selectedFont = availableFonts.first;
+
+  ThemeProvider(this._prefs) {
+    final isDark = _prefs.getBool(_themeKey);
+    if (isDark == null) {
+      _themeMode = ThemeMode.system;
+    } else {
+      _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
+    }
+  }
 
   ThemeMode get themeMode => _themeMode;
   Color get seedColor => _seedColor;
   AppFont get selectedFont => _selectedFont;
   bool get isDark => _themeMode == ThemeMode.dark;
 
-  void toggle() {
-    _themeMode = _themeMode == ThemeMode.dark
-        ? ThemeMode.light
-        : ThemeMode.dark;
+  Future<void> toggle() async {
+    _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    await _prefs.setBool(_themeKey, _themeMode == ThemeMode.dark);
     notifyListeners();
   }
 

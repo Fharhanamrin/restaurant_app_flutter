@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
+import 'data/repositories/favorite_repository.dart';
+import 'data/repositories/favorite_repository_impl.dart';
 import 'data/repositories/restaurant_repository.dart';
 import 'data/repositories/restaurant_repository_impl.dart';
+import 'providers/favorite_provider.dart';
+import 'providers/reminder_provider.dart';
 import 'providers/restaurant_detail_provider.dart';
 import 'providers/restaurant_list_provider.dart';
 import 'providers/search_provider.dart';
 import 'providers/theme_provider.dart';
-import 'ui/screens/restaurant_list/restaurant_list_screen.dart';
+import 'ui/screens/main/main_screen.dart';
 
 class App extends StatelessWidget {
-  const App({super.key});
+  final SharedPreferences prefs;
+
+  const App({super.key, required this.prefs});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +28,15 @@ class App extends StatelessWidget {
         Provider<RestaurantRepository>(
           create: (_) => RestaurantRepositoryImpl(),
         ),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        Provider<FavoriteRepository>(
+          create: (_) => FavoriteRepositoryImpl(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(prefs),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReminderProvider(prefs),
+        ),
         ChangeNotifierProvider(
           create: (context) =>
               RestaurantListProvider(context.read<RestaurantRepository>()),
@@ -33,6 +48,10 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) =>
               SearchProvider(context.read<RestaurantRepository>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) =>
+              FavoriteProvider(context.read<FavoriteRepository>()),
         ),
       ],
       child: Builder(
@@ -50,7 +69,7 @@ class App extends StatelessWidget {
               themeProvider.selectedFont.textTheme,
             ),
             themeMode: themeProvider.themeMode,
-            home: const RestaurantListScreen(),
+            home: const MainScreen(),
           );
         },
       ),

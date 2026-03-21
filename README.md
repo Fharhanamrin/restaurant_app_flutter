@@ -1,68 +1,111 @@
 # Restaurant App Flutter
 
-Aplikasi restoran yang menampilkan daftar restoran, detail, pencarian, dan fitur ulasan menggunakan REST API dari 
-[Dicoding Restaurant API](https://restaurant-api.dicoding.dev).
+Aplikasi restoran yang menampilkan daftar restoran, detail, pencarian, fitur ulasan, favorit, pengaturan tema, dan notifikasi harian menggunakan REST API dari [Dicoding Restaurant API](https://restaurant-api.dicoding.dev).
 
 ## Tech Stack
 
 - **Flutter** (Dart SDK ^3.11.1)
 - **Provider** - State management (`context.watch` / `context.read` + `Builder`)
 - **HTTP** - REST API client
+- **sqflite** - SQLite database untuk daftar favorit
+- **SharedPreferences** - Persistensi tema dan pengaturan reminder
+- **flutter_local_notifications** - Notifikasi lokal
+- **Workmanager** - Background task untuk daily reminder
 - **Google Fonts** - Custom font picker
 - **Material 3** - Theming & UI components
+- **Mockito** - Unit testing mocks
 
 ## Fitur
 
 - Daftar restoran dengan gambar, rating, dan kota
 - Detail restoran (deskripsi, menu makanan & minuman, kategori)
+- Deskripsi panjang dengan tombol "Lihat selengkapnya / Sembunyikan"
 - Pencarian restoran
 - Tulis & kirim ulasan
-- Dark mode / Light mode toggle
+- Favorit restoran (simpan/hapus ke database SQLite)
+- Dark mode / Light mode toggle (persisten via SharedPreferences)
 - Pilih warna tema (10 pilihan warna)
 - Pilih font (8 pilihan Google Fonts)
+- Daily reminder notifikasi pukul 11.00 (restoran acak dari API)
+- Bottom Navigation Bar (Home, Favorit, Pengaturan)
 - Hero animation untuk transisi gambar
 
 ## Struktur Project
 
 ```
 lib/
-├── main.dart                          # Entry point
-├── app.dart                           # MultiProvider & MaterialApp setup
+├── main.dart                              # Entry point + init SharedPrefs, Workmanager, Notifications
+├── app.dart                               # MultiProvider & MaterialApp setup
 ├── core/
 │   ├── constants/
-│   │   └── app_constants.dart         # Base URL & image endpoints
-│   └── theme/
-│       └── app_theme.dart             # Light & dark ThemeData factory
-├── data/
+│   │   ├── app_constants.dart             # Base URL & image endpoints
+│   │   └── error_messages.dart            # Pesan error terpusat
+│   ├── exceptions/
+│   │   └── app_exception.dart             # Custom exception class
 │   ├── models/
-│   │   ├── restaurant.dart            # Model list restoran
-│   │   ├── restaurant_detail.dart     # Model detail restoran
-│   │   ├── menu_item.dart             # Model item menu
-│   │   └── customer_review.dart       # Model ulasan
+│   │   ├── app_color.dart                 # Model preset warna tema
+│   │   └── app_font.dart                  # Model preset font
+│   └── theme/
+│       └── app_theme.dart                 # Light & dark ThemeData factory
+├── data/
+│   ├── local/
+│   │   └── database_helper.dart           # SQLite singleton (DatabaseHelper)
+│   ├── models/
+│   │   ├── restaurant.dart                # Model list restoran + toMap/fromMap
+│   │   ├── restaurant_detail.dart         # Model detail restoran
+│   │   ├── menu_item.dart                 # Model item menu
+│   │   └── customer_review.dart           # Model ulasan
 │   └── repositories/
-│       ├── restaurant_repository.dart      # Abstract interface
-│       └── restaurant_repository_impl.dart # Implementasi HTTP client
+│       ├── restaurant_repository.dart     # Abstract interface (API)
+│       ├── restaurant_repository_impl.dart # Implementasi HTTP client
+│       ├── favorite_repository.dart       # Abstract interface (SQLite)
+│       └── favorite_repository_impl.dart  # Implementasi SQLite
 ├── providers/
-│   ├── restaurant_list_provider.dart  # State management list restoran
-│   ├── restaurant_detail_provider.dart # State management detail & review
-│   ├── search_provider.dart           # State management pencarian
-│   └── theme_provider.dart            # State management tema, warna, font
+│   ├── states/
+│   │   ├── restaurant_list_state.dart     # Sealed state: list restoran
+│   │   ├── restaurant_detail_state.dart   # Sealed state: detail restoran
+│   │   ├── search_state.dart              # Sealed state: pencarian
+│   │   └── favorite_state.dart            # Sealed state: favorit
+│   ├── restaurant_list_provider.dart      # State management list restoran
+│   ├── restaurant_detail_provider.dart    # State management detail & review
+│   ├── search_provider.dart               # State management pencarian
+│   ├── theme_provider.dart                # State management tema (SharedPreferences)
+│   ├── favorite_provider.dart             # State management favorit (SQLite)
+│   └── reminder_provider.dart             # State management daily reminder
+├── services/
+│   ├── notification_service.dart          # FlutterLocalNotificationsPlugin init & show
+│   └── workmanager_service.dart           # Workmanager callback dispatcher
 └── ui/
     ├── screens/
+    │   ├── main/
+    │   │   └── main_screen.dart           # BottomNavigationBar shell
     │   ├── restaurant_list/
-    │   │   └── restaurant_list_screen.dart   # Halaman utama daftar restoran
+    │   │   └── restaurant_list_screen.dart # Halaman daftar restoran
     │   ├── restaurant_detail/
-    │   │   └── restaurant_detail_screen.dart # Halaman detail restoran
+    │   │   └── restaurant_detail_screen.dart # Halaman detail + tombol favorit
     │   ├── search/
-    │   │   └── search_screen.dart            # Halaman pencarian
+    │   │   └── search_screen.dart         # Halaman pencarian
+    │   ├── favorite/
+    │   │   └── favorite_screen.dart       # Halaman daftar favorit
+    │   ├── settings/
+    │   │   └── settings_screen.dart       # Halaman pengaturan
     │   ├── color_picker/
-    │   │   └── color_picker_screen.dart      # Halaman pilih warna tema
+    │   │   └── color_picker_screen.dart   # Halaman pilih warna tema
     │   └── font_picker/
-    │       └── font_picker_screen.dart       # Halaman pilih font
+    │       └── font_picker_screen.dart    # Halaman pilih font
     └── widgets/
-        ├── restaurant_card.dart       # Card restoran (reusable)
-        ├── error_view.dart            # Widget error dengan tombol retry
-        └── loading_indicator.dart     # Loading spinner
+        ├── restaurant_card.dart           # Card restoran (reusable)
+        ├── error_view.dart                # Widget error dengan tombol retry
+        └── loading_indicator.dart         # Loading spinner
+
+test/
+├── providers/
+│   └── restaurant_list_provider_test.dart # 3 unit tests (initial, success, error)
+└── widgets/
+    └── restaurant_card_test.dart          # 2 widget tests (render, onTap)
+
+integration_test/
+└── app_test.dart                          # 1 integration test (launch -> list -> detail)
 ```
 
 ## Arsitektur
@@ -74,22 +117,62 @@ Provider (ChangeNotifier + sealed class State)
   ↕
 Repository (abstract interface)
   ↕
-HTTP Client (REST API)
+HTTP Client / SQLite / SharedPreferences
 ```
 
 - **Sealed class** untuk state management (`Loading`, `Loaded`, `Error`, `Initial`)
 - **`context.watch<T>()`** di dalam `Builder` untuk scoped rebuild
 - **`context.read<T>()`** di callback untuk one-time access tanpa subscribe
 - **Repository pattern** dengan abstract interface untuk dependency injection
+- **DatabaseHelper singleton** untuk akses SQLite
+- **SharedPreferences** diinject melalui `main.dart` ke provider
+- **Workmanager** dengan top-level `callbackDispatcher` untuk background task
+- **`AppException`** sebagai custom exception
+- **`ErrorMessages`** untuk memusatkan semua string error
 
 ## Getting Started
 
 ```bash
-# Install dependencies
 flutter pub get
-
-# Run app
 flutter run
+```
+
+## Testing
+
+```bash
+# Unit + Widget tests
+flutter test
+
+# Integration test
+flutter test integration_test/app_test.dart
+```
+
+## Dokumentasi Lengkap
+
+Dokumentasi teori dan penjelasan detail tersedia di folder `.docs/`:
+
+| # | Dokumen | Isi |
+|---|---------|-----|
+| 01 | [Arsitektur](.docs/01-arsitektur.md) | 3-layer architecture, dependency injection, alur data |
+| 02 | [State Management](.docs/02-state-management.md) | Provider, sealed class, context.watch vs read |
+| 03 | [Database SQLite](.docs/03-database-sqlite.md) | Singleton pattern, CRUD, favorit |
+| 04 | [SharedPreferences](.docs/04-shared-preferences.md) | Persistensi tema dan pengingat |
+| 05 | [Notifikasi & Background](.docs/05-notifikasi-dan-background-task.md) | flutter_local_notifications, Workmanager |
+| 06 | [Testing](.docs/06-testing.md) | Unit, widget, integration test |
+| 07 | [Tema & Material 3](.docs/07-tema-dan-material3.md) | ColorScheme, dark mode, font |
+| 08 | [Navigasi](.docs/08-navigasi.md) | Bottom nav, IndexedStack, Hero animation |
+| 09 | [API & Networking](.docs/09-api-dan-networking.md) | REST API, error handling, models |
+
+## Export ZIP (tanpa docs & cache)
+
+```bash
+cd /opt/homebrew/var/www/learn-dart/2026/learning-path-flutter/flutter-fundamental
+zip -r restaurant_app.zip restaurant_app_flutter/ \
+  -x "restaurant_app_flutter/.docs/*" \
+  -x "restaurant_app_flutter/.dart_tool/*" \
+  -x "restaurant_app_flutter/build/*" \
+  -x "restaurant_app_flutter/.flutter-plugins*" \
+  -x "restaurant_app_flutter/android/.gradle/*"
 ```
 
 ## API
@@ -102,4 +185,3 @@ Base URL: `https://restaurant-api.dicoding.dev`
 | `/detail/{id}` | GET | Detail restoran berdasarkan ID |
 | `/search?q={query}` | GET | Pencarian restoran |
 | `/review` | POST | Kirim ulasan baru |
-# restaurant_app_flutter
