@@ -1,6 +1,7 @@
 # Restaurant App Flutter
 
-Aplikasi restoran yang menampilkan daftar restoran, detail, pencarian, dan fitur ulasan menggunakan REST API dari [Dicoding Restaurant API](https://restaurant-api.dicoding.dev).
+Aplikasi restoran yang menampilkan daftar restoran, detail, pencarian, dan fitur ulasan menggunakan REST API dari 
+xxxx
 
 ## Tech Stack
 
