@@ -14,13 +14,13 @@ const String dailyReminderTaskTag = 'dailyReminder';
 void callbackDispatcher() {
   Workmanager().executeTask((taskName, inputData) async {
     if (taskName == dailyReminderTaskName) {
-      await _fetchAndShowNotification();
+      await fetchAndShowNotification();
     }
     return true;
   });
 }
 
-Future<void> _fetchAndShowNotification() async {
+Future<void> fetchAndShowNotification() async {
   try {
     final response = await http.get(
       Uri.parse('${AppConstants.baseUrl}/list'),

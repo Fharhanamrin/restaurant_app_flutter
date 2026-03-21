@@ -6,11 +6,13 @@ import '../../data/models/restaurant.dart';
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
   final VoidCallback onTap;
+  final String heroTagPrefix;
 
   const RestaurantCard({
     super.key,
     required this.restaurant,
     required this.onTap,
+    this.heroTagPrefix = '',
   });
 
   @override
@@ -25,7 +27,7 @@ class RestaurantCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Hero(
-              tag: 'restaurant_image_${restaurant.id}',
+              tag: '${heroTagPrefix}restaurant_image_${restaurant.id}',
               child: Image.network(
                 '${AppConstants.imageMedium}${restaurant.pictureId}',
                 height: 180,

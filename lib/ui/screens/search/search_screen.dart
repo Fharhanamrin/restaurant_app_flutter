@@ -72,6 +72,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         final restaurant = restaurants[index];
                         return RestaurantCard(
                           restaurant: restaurant,
+                          heroTagPrefix: 'search_',
                           onTap: () {
                             context
                                 .read<RestaurantDetailProvider>()
@@ -81,6 +82,7 @@ class _SearchScreenState extends State<SearchScreen> {
                               MaterialPageRoute(
                                 builder: (_) => RestaurantDetailScreen(
                                   restaurantId: restaurant.id,
+                                  heroTagPrefix: 'search_',
                                 ),
                               ),
                             );

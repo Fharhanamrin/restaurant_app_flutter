@@ -13,8 +13,13 @@ import '../../widgets/loading_indicator.dart';
 
 class RestaurantDetailScreen extends StatelessWidget {
   final String restaurantId;
+  final String heroTagPrefix;
 
-  const RestaurantDetailScreen({super.key, required this.restaurantId});
+  const RestaurantDetailScreen({
+    super.key,
+    required this.restaurantId,
+    this.heroTagPrefix = '',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +28,10 @@ class RestaurantDetailScreen extends StatelessWidget {
         final provider = context.watch<RestaurantDetailProvider>();
         return switch (provider.state) {
           RestaurantDetailLoaded(:final restaurant) => Scaffold(
-              body: _DetailBody(restaurant: restaurant),
+              body: _DetailBody(
+                restaurant: restaurant,
+                heroTagPrefix: heroTagPrefix,
+              ),
             ),
           RestaurantDetailError(:final message) => Scaffold(
               appBar: AppBar(
@@ -52,14 +60,18 @@ class RestaurantDetailScreen extends StatelessWidget {
 
 class _DetailBody extends StatelessWidget {
   final RestaurantDetail restaurant;
+  final String heroTagPrefix;
 
-  const _DetailBody({required this.restaurant});
+  const _DetailBody({
+    required this.restaurant,
+    this.heroTagPrefix = '',
+  });
 
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        _HeroAppBar(restaurant: restaurant),
+        _HeroAppBar(restaurant: restaurant, heroTagPrefix: heroTagPrefix),
         SliverPadding(
           padding: const EdgeInsets.all(16),
           sliver: SliverList(
@@ -83,8 +95,12 @@ class _DetailBody extends StatelessWidget {
 
 class _HeroAppBar extends StatelessWidget {
   final RestaurantDetail restaurant;
+  final String heroTagPrefix;
 
-  const _HeroAppBar({required this.restaurant});
+  const _HeroAppBar({
+    required this.restaurant,
+    this.heroTagPrefix = '',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +140,7 @@ class _HeroAppBar extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
         ),
         background: Hero(
-          tag: 'restaurant_image_${restaurant.id}',
+          tag: '${heroTagPrefix}restaurant_image_${restaurant.id}',
           child: Image.network(
             '${AppConstants.imageLarge}${restaurant.pictureId}',
             fit: BoxFit.cover,

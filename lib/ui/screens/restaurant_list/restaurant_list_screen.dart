@@ -46,6 +46,7 @@ class RestaurantListScreen extends StatelessWidget {
                   final restaurant = restaurants[index];
                   return RestaurantCard(
                     restaurant: restaurant,
+                    heroTagPrefix: 'home_',
                     onTap: () {
                       context
                           .read<RestaurantDetailProvider>()
@@ -55,6 +56,7 @@ class RestaurantListScreen extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (_) => RestaurantDetailScreen(
                             restaurantId: restaurant.id,
+                            heroTagPrefix: 'home_',
                           ),
                         ),
                       );

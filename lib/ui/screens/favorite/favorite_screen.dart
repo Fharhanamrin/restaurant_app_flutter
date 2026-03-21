@@ -72,6 +72,7 @@ class FavoriteScreen extends StatelessWidget {
                       final restaurant = restaurants[index];
                       return RestaurantCard(
                         restaurant: restaurant,
+                        heroTagPrefix: 'fav_',
                         onTap: () {
                           context
                               .read<RestaurantDetailProvider>()
@@ -81,6 +82,7 @@ class FavoriteScreen extends StatelessWidget {
                             MaterialPageRoute(
                               builder: (_) => RestaurantDetailScreen(
                                 restaurantId: restaurant.id,
+                                heroTagPrefix: 'fav_',
                               ),
                             ),
                           );
