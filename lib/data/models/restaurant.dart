@@ -16,11 +16,11 @@ class Restaurant {
   });
 
   factory Restaurant.fromJson(Map<String, dynamic> json) => Restaurant(
-        id: json['id'] as String,
-        name: json['name'] as String,
-        description: json['description'] as String,
-        pictureId: json['pictureId'] as String,
-        city: json['city'] as String,
-        rating: (json['rating'] as num).toDouble(),
-      );
+    id: json['id'] as String,
+    name: json['name'] as String,
+    description: json['description'] as String,
+    pictureId: json['pictureId'] as String,
+    city: json['city'] as String,
+    rating: (json['rating'] as num).toDouble(),
+  );
 }

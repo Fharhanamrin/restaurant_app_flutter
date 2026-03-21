@@ -28,8 +28,7 @@ class FontPickerScreen extends StatelessWidget {
               return _FontTile(
                 appFont: appFont,
                 isSelected: isSelected,
-                onTap: () =>
-                    context.read<ThemeProvider>().setFont(appFont),
+                onTap: () => context.read<ThemeProvider>().setFont(appFont),
               );
             },
           );
@@ -58,10 +57,7 @@ class _FontTile extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: isSelected
-            ? BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              )
+            ? BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
             : BorderSide.none,
       ),
       child: InkWell(

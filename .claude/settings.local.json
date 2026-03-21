@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(curl -s -X POST https://restaurant-api.dicoding.dev/review -H \"Content-Type: application/json\" -d '{\"\"\"\"id\"\"\"\":\"\"\"\"rqdv5juczeskfw1e867\"\"\"\",\"\"\"\"name\"\"\"\":\"\"\"\"Test\"\"\"\",\"\"\"\"review\"\"\"\":\"\"\"\"Test review\"\"\"\"}')",
-      "Bash(python3 -m json.tool)"
-    ]
-  }
-}

@@ -1,23 +1,9 @@
 import 'package:flutter/foundation.dart';
 
-import '../data/models/restaurant_detail.dart';
 import '../data/repositories/restaurant_repository.dart';
+import 'states/restaurant_detail_state.dart';
 
-sealed class RestaurantDetailState {}
-
-class RestaurantDetailInitial extends RestaurantDetailState {}
-
-class RestaurantDetailLoading extends RestaurantDetailState {}
-
-class RestaurantDetailLoaded extends RestaurantDetailState {
-  final RestaurantDetail restaurant;
-  RestaurantDetailLoaded(this.restaurant);
-}
-
-class RestaurantDetailError extends RestaurantDetailState {
-  final String message;
-  RestaurantDetailError(this.message);
-}
+export 'states/restaurant_detail_state.dart';
 
 class RestaurantDetailProvider extends ChangeNotifier {
   final RestaurantRepository _repository;
@@ -30,6 +16,14 @@ class RestaurantDetailProvider extends ChangeNotifier {
   bool _isSubmittingReview = false;
   bool get isSubmittingReview => _isSubmittingReview;
 
+  bool _isDescriptionExpanded = false;
+  bool get isDescriptionExpanded => _isDescriptionExpanded;
+
+  void toggleDescription() {
+    _isDescriptionExpanded = !_isDescriptionExpanded;
+    notifyListeners();
+  }
+
   Future<void> fetchDetail(String id) async {
     _state = RestaurantDetailLoading();
     notifyListeners();
@@ -37,10 +31,10 @@ class RestaurantDetailProvider extends ChangeNotifier {
       final restaurant = await _repository.getDetail(id);
       _state = RestaurantDetailLoaded(restaurant);
     } catch (e) {
-      _state =
-          RestaurantDetailError(e.toString().replaceFirst('Exception: ', ''));
+      _state = RestaurantDetailError(e.toString());
+    } finally {
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   /// Returns null on success, error message string on failure.
@@ -51,22 +45,27 @@ class RestaurantDetailProvider extends ChangeNotifier {
   }) async {
     _isSubmittingReview = true;
     notifyListeners();
+    String? result;
     try {
-      final reviews =
-          await _repository.addReview(id: id, name: name, review: review);
+      final reviews = await _repository.addReview(
+        id: id,
+        name: name,
+        review: review,
+      );
+
       final current = _state;
       if (current is RestaurantDetailLoaded) {
         _state = RestaurantDetailLoaded(
           current.restaurant.copyWith(customerReviews: reviews),
         );
       }
-      _isSubmittingReview = false;
-      notifyListeners();
-      return null;
+      result = null;
     } catch (e) {
+      result = e.toString();
+    } finally {
       _isSubmittingReview = false;
       notifyListeners();
-      return e.toString().replaceFirst('Exception: ', '');
     }
+    return result;
   }
 }

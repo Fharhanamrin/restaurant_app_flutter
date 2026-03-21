@@ -1,24 +1,9 @@
 import 'package:flutter/foundation.dart';
 
-import '../data/models/restaurant.dart';
 import '../data/repositories/restaurant_repository.dart';
+import 'states/search_state.dart';
 
-sealed class SearchState {}
-
-class SearchInitial extends SearchState {}
-
-class SearchLoading extends SearchState {}
-
-class SearchLoaded extends SearchState {
-  final List<Restaurant> restaurants;
-  final String query;
-  SearchLoaded(this.restaurants, this.query);
-}
-
-class SearchError extends SearchState {
-  final String message;
-  SearchError(this.message);
-}
+export 'states/search_state.dart';
 
 class SearchProvider extends ChangeNotifier {
   final RestaurantRepository _repository;
@@ -40,9 +25,10 @@ class SearchProvider extends ChangeNotifier {
       final restaurants = await _repository.search(query.trim());
       _state = SearchLoaded(restaurants, query.trim());
     } catch (e) {
-      _state = SearchError(e.toString().replaceFirst('Exception: ', ''));
+      _state = SearchError(e.toString());
+    } finally {
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   void clearResults() {

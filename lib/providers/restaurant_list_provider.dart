@@ -1,23 +1,9 @@
 import 'package:flutter/foundation.dart';
 
-import '../data/models/restaurant.dart';
 import '../data/repositories/restaurant_repository.dart';
+import 'states/restaurant_list_state.dart';
 
-sealed class RestaurantListState {}
-
-class RestaurantListInitial extends RestaurantListState {}
-
-class RestaurantListLoading extends RestaurantListState {}
-
-class RestaurantListLoaded extends RestaurantListState {
-  final List<Restaurant> restaurants;
-  RestaurantListLoaded(this.restaurants);
-}
-
-class RestaurantListError extends RestaurantListState {
-  final String message;
-  RestaurantListError(this.message);
-}
+export 'states/restaurant_list_state.dart';
 
 class RestaurantListProvider extends ChangeNotifier {
   final RestaurantRepository _repository;
@@ -36,8 +22,9 @@ class RestaurantListProvider extends ChangeNotifier {
       final restaurants = await _repository.getList();
       _state = RestaurantListLoaded(restaurants);
     } catch (e) {
-      _state = RestaurantListError(e.toString().replaceFirst('Exception: ', ''));
+      _state = RestaurantListError(e.toString());
+    } finally {
+      notifyListeners();
     }
-    notifyListeners();
   }
 }

@@ -21,27 +21,25 @@ class RestaurantDetailScreen extends StatelessWidget {
         final provider = context.watch<RestaurantDetailProvider>();
         return switch (provider.state) {
           RestaurantDetailLoaded(:final restaurant) => Scaffold(
-              body: _DetailBody(restaurant: restaurant),
-            ),
+            body: _DetailBody(restaurant: restaurant),
+          ),
           RestaurantDetailError(:final message) => Scaffold(
-              appBar: AppBar(
-                backgroundColor:
-                    Theme.of(context).colorScheme.inversePrimary,
-              ),
-              body: ErrorView(
-                message: message,
-                onRetry: () => context
-                    .read<RestaurantDetailProvider>()
-                    .fetchDetail(restaurantId),
-              ),
+            appBar: AppBar(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             ),
+            body: ErrorView(
+              message: message,
+              onRetry: () => context
+                  .read<RestaurantDetailProvider>()
+                  .fetchDetail(restaurantId),
+            ),
+          ),
           _ => Scaffold(
-              appBar: AppBar(
-                backgroundColor:
-                    Theme.of(context).colorScheme.inversePrimary,
-              ),
-              body: const LoadingIndicator(),
+            appBar: AppBar(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             ),
+            body: const LoadingIndicator(),
+          ),
         };
       },
     );
@@ -64,10 +62,7 @@ class _DetailBody extends StatelessWidget {
             delegate: SliverChildListDelegate([
               _InfoSection(restaurant: restaurant),
               const SizedBox(height: 16),
-              _MenuSection(
-                foods: restaurant.foods,
-                drinks: restaurant.drinks,
-              ),
+              _MenuSection(foods: restaurant.foods, drinks: restaurant.drinks),
               const SizedBox(height: 16),
               _ReviewSection(
                 restaurantId: restaurant.id,
@@ -121,6 +116,8 @@ class _InfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<RestaurantDetailProvider>();
+    final expanded = provider.isDescriptionExpanded;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -129,8 +126,10 @@ class _InfoSection extends StatelessWidget {
             const Icon(Icons.location_on, size: 16),
             const SizedBox(width: 4),
             Expanded(
-              child: Text('${restaurant.city} · ${restaurant.address}',
-                  style: Theme.of(context).textTheme.bodyMedium),
+              child: Text(
+                '${restaurant.city} · ${restaurant.address}',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
             ),
           ],
         ),
@@ -139,24 +138,49 @@ class _InfoSection extends StatelessWidget {
           children: [
             const Icon(Icons.star_rounded, size: 16, color: Colors.amber),
             const SizedBox(width: 4),
-            Text(restaurant.rating.toString(),
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w600)),
+            Text(
+              restaurant.rating.toString(),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
           ],
         ),
         const SizedBox(height: 8),
         Wrap(
           spacing: 6,
           children: restaurant.categories
-              .map((c) => Chip(label: Text(c), materialTapTargetSize: MaterialTapTargetSize.shrinkWrap))
+              .map(
+                (c) => Chip(
+                  label: Text(c),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              )
               .toList(),
         ),
         const SizedBox(height: 12),
-        Text('Deskripsi', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+        Text(
+          'Deskripsi',
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+        ),
         const SizedBox(height: 6),
-        Text(restaurant.description, style: Theme.of(context).textTheme.bodyMedium),
+        Text(
+          restaurant.description,
+          style: Theme.of(context).textTheme.bodyMedium,
+          maxLines: expanded ? null : 3,
+          overflow: expanded ? TextOverflow.visible : TextOverflow.ellipsis,
+        ),
+        TextButton(
+          onPressed: () =>
+              context.read<RestaurantDetailProvider>().toggleDescription(),
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Text(expanded ? 'Sembunyikan' : 'Lihat selengkapnya'),
+        ),
       ],
     );
   }
@@ -173,14 +197,31 @@ class _MenuSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Menu', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+        Text(
+          'Menu',
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+        ),
         const SizedBox(height: 12),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(child: _MenuColumn(title: 'Makanan', icon: Icons.restaurant, items: foods)),
+            Expanded(
+              child: _MenuColumn(
+                title: 'Makanan',
+                icon: Icons.restaurant,
+                items: foods,
+              ),
+            ),
             const SizedBox(width: 12),
-            Expanded(child: _MenuColumn(title: 'Minuman', icon: Icons.local_drink, items: drinks)),
+            Expanded(
+              child: _MenuColumn(
+                title: 'Minuman',
+                icon: Icons.local_drink,
+                items: drinks,
+              ),
+            ),
           ],
         ),
       ],
@@ -193,7 +234,11 @@ class _MenuColumn extends StatelessWidget {
   final IconData icon;
   final List<MenuItem> items;
 
-  const _MenuColumn({required this.title, required this.icon, required this.items});
+  const _MenuColumn({
+    required this.title,
+    required this.icon,
+    required this.items,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -204,20 +249,32 @@ class _MenuColumn extends StatelessWidget {
           children: [
             Icon(icon, size: 16, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 4),
-            Text(title, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+            Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+            ),
           ],
         ),
         const SizedBox(height: 8),
-        ...items.map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Row(
-                children: [
-                  const Icon(Icons.circle, size: 6),
-                  const SizedBox(width: 6),
-                  Expanded(child: Text(item.name, style: Theme.of(context).textTheme.bodySmall)),
-                ],
-              ),
-            )),
+        ...items.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Row(
+              children: [
+                const Icon(Icons.circle, size: 6),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    item.name,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -257,13 +314,13 @@ class _ReviewSectionState extends State<_ReviewSection> {
     if (error == null) {
       _nameController.clear();
       _reviewController.clear();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ulasan berhasil dikirim!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Ulasan berhasil dikirim!')));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal: $error')));
     }
   }
 
@@ -272,11 +329,21 @@ class _ReviewSectionState extends State<_ReviewSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Ulasan', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+        Text(
+          'Ulasan',
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+        ),
         const SizedBox(height: 12),
         ...widget.reviews.map((r) => _ReviewCard(review: r)),
         const SizedBox(height: 16),
-        Text('Tulis Ulasan', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+        Text(
+          'Tulis Ulasan',
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+        ),
         const SizedBox(height: 8),
         Form(
           key: _formKey,
@@ -288,7 +355,8 @@ class _ReviewSectionState extends State<_ReviewSection> {
                   labelText: 'Nama',
                   border: OutlineInputBorder(),
                 ),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Nama wajib diisi' : null,
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Nama wajib diisi' : null,
               ),
               const SizedBox(height: 10),
               TextFormField(
@@ -298,24 +366,23 @@ class _ReviewSectionState extends State<_ReviewSection> {
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 3,
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Ulasan wajib diisi' : null,
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Ulasan wajib diisi'
+                    : null,
               ),
               const SizedBox(height: 10),
               Builder(
                 builder: (context) {
-                  final provider =
-                      context.watch<RestaurantDetailProvider>();
+                  final provider = context.watch<RestaurantDetailProvider>();
                   return SizedBox(
                     width: double.infinity,
                     child: FilledButton(
-                      onPressed:
-                          provider.isSubmittingReview ? null : _submit,
+                      onPressed: provider.isSubmittingReview ? null : _submit,
                       child: provider.isSubmittingReview
                           ? const SizedBox(
                               height: 18,
                               width: 18,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2),
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('Kirim Ulasan'),
                     ),
@@ -348,7 +415,9 @@ class _ReviewCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 14,
-                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.primaryContainer,
                   child: Text(
                     review.name.isNotEmpty ? review.name[0].toUpperCase() : '?',
                     style: TextStyle(
@@ -362,8 +431,18 @@ class _ReviewCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(review.name, style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
-                      Text(review.date, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      Text(
+                        review.name,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        review.date,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                     ],
                   ),
                 ),

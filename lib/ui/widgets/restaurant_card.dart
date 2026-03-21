@@ -35,12 +35,14 @@ class RestaurantCard extends StatelessWidget {
                   if (progress == null) return child;
                   return Container(
                     height: 180,
-                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     child: Center(
                       child: CircularProgressIndicator(
                         value: progress.expectedTotalBytes != null
                             ? progress.cumulativeBytesLoaded /
-                                progress.expectedTotalBytes!
+                                  progress.expectedTotalBytes!
                             : null,
                         strokeWidth: 2,
                       ),
@@ -62,8 +64,8 @@ class RestaurantCard extends StatelessWidget {
                       Text(
                         'Gambar tidak tersedia',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -78,8 +80,8 @@ class RestaurantCard extends StatelessWidget {
                   Text(
                     restaurant.name,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontWeight: FontWeight.w600,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -95,23 +97,17 @@ class RestaurantCard extends StatelessWidget {
                       Text(
                         restaurant.city,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                       const Spacer(),
-                      Icon(
-                        Icons.star_rounded,
-                        size: 16,
-                        color: Colors.amber,
-                      ),
+                      Icon(Icons.star_rounded, size: 16, color: Colors.amber),
                       const SizedBox(width: 2),
                       Text(
                         restaurant.rating.toString(),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),

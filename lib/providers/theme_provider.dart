@@ -1,19 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AppColor {
-  final String label;
-  final Color color;
+import '../core/models/app_color.dart';
+import '../core/models/app_font.dart';
 
-  const AppColor(this.label, this.color);
-}
-
-class AppFont {
-  final String label;
-  final TextTheme Function([TextTheme?]) textTheme;
-
-  const AppFont(this.label, this.textTheme);
-}
+export '../core/models/app_color.dart';
+export '../core/models/app_font.dart';
 
 class ThemeProvider extends ChangeNotifier {
   static const List<AppColor> availableColors = [
@@ -50,8 +42,9 @@ class ThemeProvider extends ChangeNotifier {
   bool get isDark => _themeMode == ThemeMode.dark;
 
   void toggle() {
-    _themeMode =
-        _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    _themeMode = _themeMode == ThemeMode.dark
+        ? ThemeMode.light
+        : ThemeMode.dark;
     notifyListeners();
   }
 

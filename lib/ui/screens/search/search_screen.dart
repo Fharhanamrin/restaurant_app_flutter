@@ -37,8 +37,7 @@ class _SearchScreenState extends State<SearchScreen> {
             border: InputBorder.none,
           ),
           textInputAction: TextInputAction.search,
-          onSubmitted: (value) =>
-              context.read<SearchProvider>().search(value),
+          onSubmitted: (value) => context.read<SearchProvider>().search(value),
         ),
         actions: [
           Builder(
@@ -112,8 +111,8 @@ class _EmptyPrompt extends StatelessWidget {
           Text(
             'Cari restoran favorit kamu',
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -141,8 +140,8 @@ class _NoResults extends StatelessWidget {
             'Tidak ada hasil untuk "$query"',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),

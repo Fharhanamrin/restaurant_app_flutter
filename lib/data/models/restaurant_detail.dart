@@ -53,18 +53,19 @@ class RestaurantDetail {
     );
   }
 
-  RestaurantDetail copyWith({List<CustomerReview>? customerReviews}) =>
-      RestaurantDetail(
-        id: id,
-        name: name,
-        description: description,
-        city: city,
-        address: address,
-        pictureId: pictureId,
-        categories: categories,
-        foods: foods,
-        drinks: drinks,
-        rating: rating,
-        customerReviews: customerReviews ?? this.customerReviews,
-      );
+  RestaurantDetail copyWith({List<CustomerReview>? customerReviews}) {
+    return RestaurantDetail(
+      id: id,
+      name: name,
+      description: description,
+      city: city,
+      address: address,
+      pictureId: pictureId,
+      categories: categories,
+      foods: foods,
+      drinks: drinks,
+      rating: rating,
+      customerReviews: customerReviews ?? this.customerReviews,
+    );
+  }
 }
