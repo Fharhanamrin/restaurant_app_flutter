@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,15 +20,16 @@ import 'ui/screens/main/main_screen.dart';
 
 class App extends StatelessWidget {
   final SharedPreferences prefs;
+  final http.Client? httpClient;
 
-  const App({super.key, required this.prefs});
+  const App({super.key, required this.prefs, this.httpClient});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         Provider<RestaurantRepository>(
-          create: (_) => RestaurantRepositoryImpl(),
+          create: (_) => RestaurantRepositoryImpl(client: httpClient),
         ),
         Provider<FavoriteRepository>(create: (_) => FavoriteRepositoryImpl()),
         ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)),
