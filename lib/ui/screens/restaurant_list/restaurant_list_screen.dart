@@ -35,35 +35,34 @@ class RestaurantListScreen extends StatelessWidget {
             RestaurantListInitial() => const SizedBox.shrink(),
             RestaurantListLoading() => const LoadingIndicator(),
             RestaurantListError(:final message) => ErrorView(
-                message: message,
-                onRetry: () =>
-                    context.read<RestaurantListProvider>().fetchList(),
-              ),
+              message: message,
+              onRetry: () => context.read<RestaurantListProvider>().fetchList(),
+            ),
             RestaurantListLoaded(:final restaurants) => ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: restaurants.length,
-                itemBuilder: (context, index) {
-                  final restaurant = restaurants[index];
-                  return RestaurantCard(
-                    restaurant: restaurant,
-                    heroTagPrefix: 'home_',
-                    onTap: () {
-                      context
-                          .read<RestaurantDetailProvider>()
-                          .fetchDetail(restaurant.id);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => RestaurantDetailScreen(
-                            restaurantId: restaurant.id,
-                            heroTagPrefix: 'home_',
-                          ),
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: restaurants.length,
+              itemBuilder: (context, index) {
+                final restaurant = restaurants[index];
+                return RestaurantCard(
+                  restaurant: restaurant,
+                  heroTagPrefix: 'home_',
+                  onTap: () {
+                    context.read<RestaurantDetailProvider>().fetchDetail(
+                      restaurant.id,
+                    );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => RestaurantDetailScreen(
+                          restaurantId: restaurant.id,
+                          heroTagPrefix: 'home_',
                         ),
-                      );
-                    },
-                  );
-                },
-              ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           };
         },
       ),

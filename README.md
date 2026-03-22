@@ -4,16 +4,19 @@ Aplikasi restoran yang menampilkan daftar restoran, detail, pencarian, fitur ula
 
 ## Tech Stack
 
-- **Flutter** (Dart SDK ^3.11.1)
-- **Provider** - State management (`context.watch` / `context.read` + `Builder`)
-- **HTTP** - REST API client
-- **sqflite** - SQLite database untuk daftar favorit
-- **SharedPreferences** - Persistensi tema dan pengaturan reminder
-- **flutter_local_notifications** - Notifikasi lokal
-- **Workmanager** - Background task untuk daily reminder
-- **Google Fonts** - Custom font picker
-- **Material 3** - Theming & UI components
-- **Mockito** - Unit testing mocks
+| Kategori | Library | Versi |
+|---|---|---|
+| Framework | Flutter (Dart SDK) | ^3.11.1 |
+| State Management | [provider](https://pub.dev/packages/provider) | ^6.1.2 |
+| HTTP Client | [http](https://pub.dev/packages/http) | ^1.2.1 |
+| Database | [sqflite](https://pub.dev/packages/sqflite) | ^2.4.2 |
+| Key-Value Storage | [shared_preferences](https://pub.dev/packages/shared_preferences) | ^2.5.3 |
+| Notifikasi | [flutter_local_notifications](https://pub.dev/packages/flutter_local_notifications) | ^21.0.0 |
+| Background Task | [workmanager](https://pub.dev/packages/workmanager) | ^0.9.0+3 |
+| Timezone | [timezone](https://pub.dev/packages/timezone) | ^0.11.0 |
+| Font | [google_fonts](https://pub.dev/packages/google_fonts) | ^6.2.1 |
+| Testing | [mockito](https://pub.dev/packages/mockito) | ^5.4.6 |
+| UI | Material 3 | built-in |
 
 ## Fitur
 
@@ -28,7 +31,7 @@ Aplikasi restoran yang menampilkan daftar restoran, detail, pencarian, fitur ula
 - Pilih font (8 pilihan Google Fonts)
 - Daily reminder notifikasi pukul 11.00 (restoran acak dari API)
 - Bottom Navigation Bar (Home, Favorit, Pengaturan)
-- Hero animation untuk transisi gambar
+- Hero animation untuk transisi gambar (dengan prefix unik per tab)
 
 ## Struktur Project
 
@@ -74,38 +77,41 @@ lib/
 │   └── reminder_provider.dart             # State management daily reminder
 ├── services/
 │   ├── notification_service.dart          # FlutterLocalNotificationsPlugin init & show
-│   └── workmanager_service.dart           # Workmanager callback dispatcher
+│   └── workmanager_service.dart           # Workmanager callback dispatcher + fetch random restoran
 └── ui/
     ├── screens/
     │   ├── main/
-    │   │   └── main_screen.dart           # BottomNavigationBar shell
+    │   │   └── main_screen.dart           # BottomNavigationBar + IndexedStack shell
     │   ├── restaurant_list/
-    │   │   └── restaurant_list_screen.dart # Halaman daftar restoran
+    │   │   └── restaurant_list_screen.dart # Halaman daftar restoran (tab Home)
     │   ├── restaurant_detail/
     │   │   └── restaurant_detail_screen.dart # Halaman detail + tombol favorit
     │   ├── search/
     │   │   └── search_screen.dart         # Halaman pencarian
     │   ├── favorite/
-    │   │   └── favorite_screen.dart       # Halaman daftar favorit
+    │   │   └── favorite_screen.dart       # Halaman daftar favorit (tab Favorit)
     │   ├── settings/
-    │   │   └── settings_screen.dart       # Halaman pengaturan
+    │   │   └── settings_screen.dart       # Halaman pengaturan (tab Settings)
     │   ├── color_picker/
     │   │   └── color_picker_screen.dart   # Halaman pilih warna tema
     │   └── font_picker/
     │       └── font_picker_screen.dart    # Halaman pilih font
     └── widgets/
-        ├── restaurant_card.dart           # Card restoran (reusable)
+        ├── restaurant_card.dart           # Card restoran (reusable, heroTagPrefix)
         ├── error_view.dart                # Widget error dengan tombol retry
         └── loading_indicator.dart         # Loading spinner
 
 test/
+├── match_test.dart                        # 1 unit test (Result equality)
 ├── providers/
-│   └── restaurant_list_provider_test.dart # 3 unit tests (initial, success, error)
+│   ├── restaurant_list_provider_test.dart # 3 unit tests (initial, success, error)
+│   └── restaurant_list_provider_test.mocks.dart
 └── widgets/
     └── restaurant_card_test.dart          # 2 widget tests (render, onTap)
 
 integration_test/
-└── app_test.dart                          # 1 integration test (launch -> list -> detail)
+├── app_test.dart                          # 1 integration test (launch -> list -> detail)
+└── notification_test.dart                 # 2 integration tests (notifikasi hardcoded & API)
 ```
 
 ## Arsitektur
@@ -127,6 +133,7 @@ HTTP Client / SQLite / SharedPreferences
 - **DatabaseHelper singleton** untuk akses SQLite
 - **SharedPreferences** diinject melalui `main.dart` ke provider
 - **Workmanager** dengan top-level `callbackDispatcher` untuk background task
+- **Hero animation** menggunakan `heroTagPrefix` unik per tab (`home_`, `fav_`, `search_`) untuk menghindari konflik di `IndexedStack`
 - **`AppException`** sebagai custom exception
 - **`ErrorMessages`** untuk memusatkan semua string error
 
@@ -137,15 +144,37 @@ flutter pub get
 flutter run
 ```
 
+### Konfigurasi Android
+
+- `minSdk`: 26
+- Core library desugaring enabled
+- Permissions: `INTERNET`, `POST_NOTIFICATIONS`, `RECEIVE_BOOT_COMPLETED`
+
 ## Testing
 
+Total: **9 test cases** (4 unit + 2 widget + 3 integration)
+
 ```bash
-# Unit + Widget tests
+# Unit + Widget tests (6 test cases)
 flutter test
 
-# Integration test
+# Integration test - app flow
 flutter test integration_test/app_test.dart
+
+# Integration test - notifikasi (harus di device/emulator)
+flutter test integration_test/notification_test.dart
+
+# Semua integration tests
+flutter test integration_test/
 ```
+
+| Jenis | File | Jumlah | Deskripsi |
+|---|---|---|---|
+| Unit | `test/match_test.dart` | 1 | Result equality |
+| Unit | `test/providers/restaurant_list_provider_test.dart` | 3 | State awal, fetch sukses, fetch gagal |
+| Widget | `test/widgets/restaurant_card_test.dart` | 2 | Render data, onTap callback |
+| Integration | `integration_test/app_test.dart` | 1 | Launch → list → tap card → detail |
+| Integration | `integration_test/notification_test.dart` | 2 | Notifikasi hardcoded & dari API |
 
 ## Dokumentasi Lengkap
 

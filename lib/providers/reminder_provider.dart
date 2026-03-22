@@ -26,7 +26,7 @@ class ReminderProvider extends ChangeNotifier {
         existingWorkPolicy: ExistingPeriodicWorkPolicy.replace,
       );
     } else {
-      await Workmanager().cancelByTag(dailyReminderTaskTag);
+      await Workmanager().cancelAll();
     }
     notifyListeners();
   }

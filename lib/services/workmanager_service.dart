@@ -22,16 +22,15 @@ void callbackDispatcher() {
 
 Future<void> fetchAndShowNotification() async {
   try {
-    final response = await http.get(
-      Uri.parse('${AppConstants.baseUrl}/list'),
-    );
+    final response = await http.get(Uri.parse('${AppConstants.baseUrl}/list'));
     if (response.statusCode == 200) {
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       final restaurants = body['restaurants'] as List;
       if (restaurants.isNotEmpty) {
         final random = Random();
         final restaurant =
-            restaurants[random.nextInt(restaurants.length)] as Map<String, dynamic>;
+            restaurants[random.nextInt(restaurants.length)]
+                as Map<String, dynamic>;
 
         const androidDetails = AndroidNotificationDetails(
           'daily_reminder',
@@ -43,8 +42,9 @@ Future<void> fetchAndShowNotification() async {
         const details = NotificationDetails(android: androidDetails);
 
         final plugin = FlutterLocalNotificationsPlugin();
-        const androidSettings =
-            AndroidInitializationSettings('@mipmap/ic_launcher');
+        const androidSettings = AndroidInitializationSettings(
+          '@mipmap/ic_launcher',
+        );
         const settings = InitializationSettings(android: androidSettings);
         await plugin.initialize(settings: settings);
 

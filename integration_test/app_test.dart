@@ -7,8 +7,9 @@ import 'package:restaurant_app_flutter/app.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('App launch -> tampil daftar -> tap card -> navigasi ke detail',
-      (tester) async {
+  testWidgets('App launch -> tampil daftar -> tap card -> navigasi ke detail', (
+    tester,
+  ) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
 

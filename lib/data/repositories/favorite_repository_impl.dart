@@ -6,7 +6,7 @@ class FavoriteRepositoryImpl implements FavoriteRepository {
   final DatabaseHelper _dbHelper;
 
   FavoriteRepositoryImpl({DatabaseHelper? dbHelper})
-      : _dbHelper = dbHelper ?? DatabaseHelper();
+    : _dbHelper = dbHelper ?? DatabaseHelper();
 
   @override
   Future<List<Restaurant>> getAll() => _dbHelper.getFavorites();

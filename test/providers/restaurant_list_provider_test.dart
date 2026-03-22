@@ -34,8 +34,7 @@ void main() {
     ),
   ];
 
-  test('state awal provider harus RestaurantListInitial sebelum fetchList',
-      () {
+  test('state awal provider harus RestaurantListInitial sebelum fetchList', () {
     when(mockRepository.getList()).thenAnswer(
       (_) async => Future.delayed(const Duration(seconds: 10), () => []),
     );
@@ -46,32 +45,35 @@ void main() {
   });
 
   test(
-      'harus mengembalikan daftar restoran ketika pengambilan data API berhasil',
-      () async {
-    when(mockRepository.getList()).thenAnswer((_) async => testRestaurants);
+    'harus mengembalikan daftar restoran ketika pengambilan data API berhasil',
+    () async {
+      when(mockRepository.getList()).thenAnswer((_) async => testRestaurants);
 
-    final provider = RestaurantListProvider(mockRepository);
+      final provider = RestaurantListProvider(mockRepository);
 
-    await Future.delayed(Duration.zero);
-    await Future.delayed(Duration.zero);
+      await Future.delayed(Duration.zero);
+      await Future.delayed(Duration.zero);
 
-    expect(provider.state, isA<RestaurantListLoaded>());
-    final loaded = provider.state as RestaurantListLoaded;
-    expect(loaded.restaurants.length, 2);
-    expect(loaded.restaurants.first.name, 'Restoran A');
-  });
+      expect(provider.state, isA<RestaurantListLoaded>());
+      final loaded = provider.state as RestaurantListLoaded;
+      expect(loaded.restaurants.length, 2);
+      expect(loaded.restaurants.first.name, 'Restoran A');
+    },
+  );
 
-  test('harus mengembalikan kesalahan ketika pengambilan data API gagal',
-      () async {
-    when(mockRepository.getList()).thenThrow(Exception('Network error'));
+  test(
+    'harus mengembalikan kesalahan ketika pengambilan data API gagal',
+    () async {
+      when(mockRepository.getList()).thenThrow(Exception('Network error'));
 
-    final provider = RestaurantListProvider(mockRepository);
+      final provider = RestaurantListProvider(mockRepository);
 
-    await Future.delayed(Duration.zero);
-    await Future.delayed(Duration.zero);
+      await Future.delayed(Duration.zero);
+      await Future.delayed(Duration.zero);
 
-    expect(provider.state, isA<RestaurantListError>());
-    final error = provider.state as RestaurantListError;
-    expect(error.message, contains('Network error'));
-  });
+      expect(provider.state, isA<RestaurantListError>());
+      final error = provider.state as RestaurantListError;
+      expect(error.message, contains('Network error'));
+    },
+  );
 }

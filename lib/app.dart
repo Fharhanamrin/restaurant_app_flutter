@@ -9,6 +9,7 @@ import 'data/repositories/favorite_repository_impl.dart';
 import 'data/repositories/restaurant_repository.dart';
 import 'data/repositories/restaurant_repository_impl.dart';
 import 'providers/favorite_provider.dart';
+import 'providers/navigation_provider.dart';
 import 'providers/reminder_provider.dart';
 import 'providers/restaurant_detail_provider.dart';
 import 'providers/restaurant_list_provider.dart';
@@ -28,15 +29,10 @@ class App extends StatelessWidget {
         Provider<RestaurantRepository>(
           create: (_) => RestaurantRepositoryImpl(),
         ),
-        Provider<FavoriteRepository>(
-          create: (_) => FavoriteRepositoryImpl(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ThemeProvider(prefs),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ReminderProvider(prefs),
-        ),
+        Provider<FavoriteRepository>(create: (_) => FavoriteRepositoryImpl()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider(prefs)),
+        ChangeNotifierProvider(create: (_) => ReminderProvider(prefs)),
+        ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(
           create: (context) =>
               RestaurantListProvider(context.read<RestaurantRepository>()),

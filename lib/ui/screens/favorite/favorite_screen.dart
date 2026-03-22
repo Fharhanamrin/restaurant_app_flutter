@@ -24,72 +24,68 @@ class FavoriteScreen extends StatelessWidget {
           return switch (provider.state) {
             FavoriteInitial() => const LoadingIndicator(),
             FavoriteError(:final message) => ErrorView(
-                message: message,
-                onRetry: () =>
-                    context.read<FavoriteProvider>().loadFavorites(),
-              ),
-            FavoriteLoaded(:final restaurants) => restaurants.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.favorite_border,
-                          size: 64,
-                          color: Theme.of(context).colorScheme.outlineVariant,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Belum ada restoran favorit',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyLarge
-                              ?.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
+              message: message,
+              onRetry: () => context.read<FavoriteProvider>().loadFavorites(),
+            ),
+            FavoriteLoaded(:final restaurants) =>
+              restaurants.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.favorite_border,
+                            size: 64,
+                            color: Theme.of(context).colorScheme.outlineVariant,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Belum ada restoran favorit',
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Tambahkan dari halaman detail restoran',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      itemCount: restaurants.length,
+                      itemBuilder: (context, index) {
+                        final restaurant = restaurants[index];
+                        return RestaurantCard(
+                          restaurant: restaurant,
+                          heroTagPrefix: 'fav_',
+                          onTap: () {
+                            context
+                                .read<RestaurantDetailProvider>()
+                                .fetchDetail(restaurant.id);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => RestaurantDetailScreen(
+                                  restaurantId: restaurant.id,
+                                  heroTagPrefix: 'fav_',
+                                ),
                               ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Tambahkan dari halaman detail restoran',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                              ),
-                        ),
-                      ],
+                            );
+                          },
+                        );
+                      },
                     ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    itemCount: restaurants.length,
-                    itemBuilder: (context, index) {
-                      final restaurant = restaurants[index];
-                      return RestaurantCard(
-                        restaurant: restaurant,
-                        heroTagPrefix: 'fav_',
-                        onTap: () {
-                          context
-                              .read<RestaurantDetailProvider>()
-                              .fetchDetail(restaurant.id);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => RestaurantDetailScreen(
-                                restaurantId: restaurant.id,
-                                heroTagPrefix: 'fav_',
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
           };
         },
       ),

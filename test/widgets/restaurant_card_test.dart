@@ -13,15 +13,13 @@ void main() {
     rating: 4.5,
   );
 
-  testWidgets('RestaurantCard menampilkan nama, kota, dan rating restoran',
-      (tester) async {
+  testWidgets('RestaurantCard menampilkan nama, kota, dan rating restoran', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: RestaurantCard(
-            restaurant: restaurant,
-            onTap: () {},
-          ),
+          body: RestaurantCard(restaurant: restaurant, onTap: () {}),
         ),
       ),
     );

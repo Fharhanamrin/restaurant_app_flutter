@@ -11,6 +11,8 @@ export '../core/models/app_font.dart';
 class ThemeProvider extends ChangeNotifier {
   final SharedPreferences _prefs;
   static const String _themeKey = 'is_dark_mode';
+  static const String _colorKey = 'seed_color_index';
+  static const String _fontKey = 'font_index';
 
   static const List<AppColor> availableColors = [
     AppColor('Ungu', Color(0xFF6750A4)),
@@ -37,8 +39,8 @@ class ThemeProvider extends ChangeNotifier {
   ];
 
   late ThemeMode _themeMode;
-  Color _seedColor = availableColors.first.color;
-  AppFont _selectedFont = availableFonts.first;
+  late Color _seedColor;
+  late AppFont _selectedFont;
 
   ThemeProvider(this._prefs) {
     final isDark = _prefs.getBool(_themeKey);
@@ -47,6 +49,14 @@ class ThemeProvider extends ChangeNotifier {
     } else {
       _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
     }
+
+    final colorIndex = _prefs.getInt(_colorKey) ?? 0;
+    _seedColor =
+        availableColors[colorIndex.clamp(0, availableColors.length - 1)].color;
+
+    final fontIndex = _prefs.getInt(_fontKey) ?? 0;
+    _selectedFont =
+        availableFonts[fontIndex.clamp(0, availableFonts.length - 1)];
   }
 
   ThemeMode get themeMode => _themeMode;
@@ -55,18 +65,24 @@ class ThemeProvider extends ChangeNotifier {
   bool get isDark => _themeMode == ThemeMode.dark;
 
   Future<void> toggle() async {
-    _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    _themeMode = _themeMode == ThemeMode.dark
+        ? ThemeMode.light
+        : ThemeMode.dark;
     await _prefs.setBool(_themeKey, _themeMode == ThemeMode.dark);
     notifyListeners();
   }
 
-  void setColor(Color color) {
+  Future<void> setColor(Color color) async {
     _seedColor = color;
+    final index = availableColors.indexWhere((c) => c.color == color);
+    if (index != -1) await _prefs.setInt(_colorKey, index);
     notifyListeners();
   }
 
-  void setFont(AppFont font) {
+  Future<void> setFont(AppFont font) async {
     _selectedFont = font;
+    final index = availableFonts.indexOf(font);
+    if (index != -1) await _prefs.setInt(_fontKey, index);
     notifyListeners();
   }
 }
